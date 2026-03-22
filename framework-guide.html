@@ -1,0 +1,2021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hybrid Test Framework — Team Reference Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ─── TOKENS ─────────────────────────────────────────────────── */
+:root {
+  --bg:        #0b0d12;
+  --surface:   #111520;
+  --surface2:  #181d2e;
+  --border:    #1e2540;
+  --border2:   #252d45;
+  --accent:    #3b82f6;
+  --accent2:   #60a5fa;
+  --green:     #22c55e;
+  --orange:    #f97316;
+  --red:       #ef4444;
+  --yellow:    #eab308;
+  --purple:    #a855f7;
+  --cyan:      #06b6d4;
+  --text:      #e2e8f0;
+  --text2:     #94a3b8;
+  --text3:     #64748b;
+  --code-bg:   #0d1117;
+  --nav-w:     260px;
+  --radius:    8px;
+  --radius-lg: 14px;
+}
+
+/* ─── RESET ──────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 15px; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  min-height: 100vh;
+  line-height: 1.65;
+}
+
+/* ─── SIDEBAR ─────────────────────────────────────────────────── */
+#sidebar {
+  width: var(--nav-w);
+  min-height: 100vh;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 0; left: 0;
+  overflow-y: auto;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+}
+#sidebar::-webkit-scrollbar { width: 4px; }
+#sidebar::-webkit-scrollbar-track { background: transparent; }
+#sidebar::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+.sidebar-logo {
+  padding: 24px 20px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-logo .logo-label {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 6px;
+}
+.sidebar-logo .logo-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.2;
+}
+.sidebar-logo .logo-sub {
+  font-size: 11.5px;
+  color: var(--text3);
+  margin-top: 4px;
+}
+.logo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 10px;
+  padding: 3px 9px;
+  background: rgba(59,130,246,0.1);
+  border: 1px solid rgba(59,130,246,0.25);
+  border-radius: 20px;
+  font-size: 11px;
+  color: var(--accent2);
+  font-family: 'JetBrains Mono', monospace;
+}
+.logo-badge span { color: var(--green); font-weight: 600; }
+
+.nav-section-label {
+  padding: 16px 20px 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text3);
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 20px;
+  font-size: 13px;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-decoration: none;
+  border-left: 2px solid transparent;
+}
+.nav-item:hover { color: var(--text); background: var(--surface2); }
+.nav-item.active { color: var(--accent2); border-left-color: var(--accent); background: rgba(59,130,246,0.07); }
+.nav-icon { font-size: 14px; width: 16px; text-align: center; flex-shrink: 0; }
+.nav-badge {
+  margin-left: auto;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.badge-ui    { background: rgba(34,197,94,0.12);  color: var(--green);  border: 1px solid rgba(34,197,94,0.2);  }
+.badge-api   { background: rgba(59,130,246,0.12); color: var(--accent2);border: 1px solid rgba(59,130,246,0.2); }
+.badge-db    { background: rgba(249,115,22,0.12); color: var(--orange); border: 1px solid rgba(249,115,22,0.2); }
+.badge-new   { background: rgba(168,85,247,0.12); color: var(--purple); border: 1px solid rgba(168,85,247,0.2); }
+.badge-core  { background: rgba(6,182,212,0.12);  color: var(--cyan);   border: 1px solid rgba(6,182,212,0.2);  }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text3);
+  line-height: 1.6;
+}
+.sidebar-footer strong { color: var(--text2); }
+
+/* ─── MAIN ────────────────────────────────────────────────────── */
+#main {
+  margin-left: var(--nav-w);
+  flex: 1;
+  min-width: 0;
+}
+
+/* ─── TOP BAR ─────────────────────────────────────────────────── */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(11,13,18,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 40px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.topbar-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text2);
+}
+.topbar-pills { display: flex; gap: 8px; margin-left: auto; }
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 11px;
+  border-radius: 20px;
+  font-size: 11.5px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+.pill-ui  { background: rgba(34,197,94,0.1);  color: var(--green);  border-color: rgba(34,197,94,0.2);  }
+.pill-api { background: rgba(59,130,246,0.1); color: var(--accent2);border-color: rgba(59,130,246,0.2); }
+.pill-db  { background: rgba(249,115,22,0.1); color: var(--orange); border-color: rgba(249,115,22,0.2); }
+.pill:hover { filter: brightness(1.2); }
+
+/* ─── SECTIONS ────────────────────────────────────────────────── */
+.section {
+  padding: 52px 40px;
+  border-bottom: 1px solid var(--border);
+  max-width: 960px;
+}
+.section:last-child { border-bottom: none; }
+
+.section-eyebrow {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 10px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+.section-desc {
+  font-size: 15px;
+  color: var(--text2);
+  max-width: 680px;
+  line-height: 1.7;
+  margin-bottom: 36px;
+}
+
+/* ─── HERO ────────────────────────────────────────────────────── */
+#hero {
+  padding: 64px 40px 52px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+#hero::before {
+  content: '';
+  position: absolute;
+  top: -80px; right: -80px;
+  width: 480px; height: 480px;
+  background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--accent2);
+  letter-spacing: 0.1em;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hero-eyebrow::before {
+  content: '';
+  display: block;
+  width: 28px; height: 1px;
+  background: var(--accent);
+}
+.hero-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 42px;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 18px;
+  background: linear-gradient(135deg, #e2e8f0 30%, #60a5fa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-sub {
+  font-size: 16px;
+  color: var(--text2);
+  max-width: 640px;
+  line-height: 1.75;
+  margin-bottom: 32px;
+}
+.hero-stats {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.stat-box {
+  display: flex;
+  flex-direction: column;
+}
+.stat-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--accent2), var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.stat-label { font-size: 12px; color: var(--text3); margin-top: 4px; }
+
+/* ─── ARCH DIAGRAM ───────────────────────────────────────────── */
+.arch-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  margin-bottom: 32px;
+  overflow-x: auto;
+}
+.arch-wrap svg { max-width: 100%; }
+
+/* ─── LAYER CARDS ─────────────────────────────────────────────── */
+.layer-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
+.layer-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.layer-card:hover { transform: translateY(-2px); }
+.layer-card.ui    { border-top: 2px solid var(--green);  }
+.layer-card.api   { border-top: 2px solid var(--accent); }
+.layer-card.db    { border-top: 2px solid var(--orange); }
+.layer-card.ctx   { border-top: 2px solid var(--cyan);   }
+.layer-card.list  { border-top: 2px solid var(--purple); }
+.layer-card.cfg   { border-top: 2px solid var(--yellow); }
+.layer-icon { font-size: 22px; margin-bottom: 10px; }
+.layer-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.layer-desc { font-size: 12.5px; color: var(--text2); line-height: 1.55; }
+.layer-files {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.file-chip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 2px 7px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  color: var(--text3);
+}
+
+/* ─── CODE BLOCKS ─────────────────────────────────────────────── */
+.code-wrap {
+  position: relative;
+  margin: 20px 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 14px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+.code-lang {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  color: var(--text3);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.code-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text2);
+}
+.copy-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 3px 10px;
+  background: transparent;
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  color: var(--text3);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.copy-btn:hover { background: var(--border); color: var(--text); }
+.copy-btn.copied { color: var(--green); border-color: rgba(34,197,94,0.3); }
+pre {
+  background: var(--code-bg);
+  padding: 18px 20px;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  line-height: 1.7;
+}
+pre::-webkit-scrollbar { height: 4px; }
+pre::-webkit-scrollbar-track { background: transparent; }
+pre::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+.kw  { color: #c792ea; }
+.cl  { color: #82aaff; }
+.fn  { color: #82aaff; }
+.st  { color: #c3e88d; }
+.cm  { color: #546e7a; font-style: italic; }
+.an  { color: #ffcb6b; }
+.tp  { color: #ffcb6b; }
+.nu  { color: #f78c6c; }
+.op  { color: #89ddff; }
+
+/* ─── TABS ────────────────────────────────────────────────────── */
+.tabs-wrap { margin-bottom: 32px; }
+.tab-bar {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+  overflow-x: auto;
+}
+.tab-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  padding: 9px 16px;
+  background: transparent;
+  border: none;
+  color: var(--text3);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+.tab-btn:hover { color: var(--text2); }
+.tab-btn.active { color: var(--accent2); border-bottom-color: var(--accent); }
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* ─── FLOW DIAGRAMS ──────────────────────────────────────────── */
+.flow-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.flow-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.flow-box {
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  font-weight: 500;
+  text-align: center;
+  white-space: nowrap;
+}
+.flow-box.ui  { background: rgba(34,197,94,0.1);  color: var(--green);  border: 1px solid rgba(34,197,94,0.25);  }
+.flow-box.api { background: rgba(59,130,246,0.1); color: var(--accent2);border: 1px solid rgba(59,130,246,0.25); }
+.flow-box.db  { background: rgba(249,115,22,0.1); color: var(--orange); border: 1px solid rgba(249,115,22,0.25); }
+.flow-box.ctx { background: rgba(6,182,212,0.1);  color: var(--cyan);   border: 1px solid rgba(6,182,212,0.25);  }
+.flow-label { font-size: 10px; color: var(--text3); }
+.flow-arrow { font-size: 18px; color: var(--text3); align-self: center; padding: 0 4px; }
+.flow-desc {
+  font-size: 12.5px;
+  color: var(--text2);
+  margin-left: auto;
+  max-width: 260px;
+  text-align: right;
+  font-style: italic;
+}
+
+/* ─── TABLES ──────────────────────────────────────────────────── */
+.ref-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-bottom: 28px;
+}
+.ref-table th {
+  padding: 10px 14px;
+  text-align: left;
+  background: var(--surface2);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text3);
+  border-bottom: 1px solid var(--border);
+}
+.ref-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text2);
+  vertical-align: top;
+}
+.ref-table tr:last-child td { border-bottom: none; }
+.ref-table tr:hover td { background: var(--surface); }
+.ref-table code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  background: var(--surface2);
+  padding: 1px 6px;
+  border-radius: 3px;
+  color: var(--cyan);
+}
+.ref-table td:first-child { color: var(--text); }
+
+/* ─── CALLOUT BOXES ──────────────────────────────────────────── */
+.callout {
+  display: flex;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: var(--radius);
+  margin: 20px 0;
+  border: 1px solid;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+.callout-tip   { background: rgba(34,197,94,0.05);  border-color: rgba(34,197,94,0.2);  color: #86efac; }
+.callout-warn  { background: rgba(234,179,8,0.05);  border-color: rgba(234,179,8,0.2);  color: #fde047; }
+.callout-info  { background: rgba(59,130,246,0.05); border-color: rgba(59,130,246,0.2); color: #93c5fd; }
+.callout-rule  { background: rgba(249,115,22,0.05); border-color: rgba(249,115,22,0.2); color: #fdba74; }
+.callout-icon  { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.callout-body  {}
+.callout-body strong { font-weight: 600; display: block; margin-bottom: 3px; }
+
+/* ─── INLINE CODE ─────────────────────────────────────────────── */
+.ic {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: var(--cyan);
+}
+.ic-green  { color: var(--green); }
+.ic-orange { color: var(--orange); }
+.ic-purple { color: var(--purple); }
+.ic-yellow { color: var(--yellow); }
+
+/* ─── HEADINGS IN SECTIONS ───────────────────────────────────── */
+.h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 36px 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.h2::before {
+  content: '';
+  display: block;
+  width: 3px; height: 20px;
+  background: var(--accent);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text2);
+  margin: 24px 0 10px;
+}
+p { color: var(--text2); margin-bottom: 14px; font-size: 14px; }
+
+/* ─── CONTEXT BRIDGE VISUAL ──────────────────────────────────── */
+.bridge-visual {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 16px;
+  align-items: start;
+  margin: 24px 0;
+}
+.bridge-col {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+}
+.bridge-col-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+}
+.bridge-arrow-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 60px;
+  gap: 8px;
+}
+.bridge-arrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text3);
+  text-align: center;
+}
+.write-item, .read-item {
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  padding: 5px 10px;
+  border-radius: 5px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.write-item { background: rgba(59,130,246,0.08); color: var(--accent2); border: 1px solid rgba(59,130,246,0.15); }
+.read-item  { background: rgba(34,197,94,0.08);  color: var(--green);   border: 1px solid rgba(34,197,94,0.15);  }
+.ctx-box {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.ctx-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text2);
+  padding: 5px 10px;
+  background: var(--code-bg);
+  border-radius: 5px;
+  border: 1px solid var(--border);
+}
+.ctx-key { color: var(--cyan); }
+.ctx-val { color: var(--green); margin-left: auto; }
+
+/* ─── STEP GUIDE ──────────────────────────────────────────────── */
+.steps { list-style: none; }
+.steps li {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 18px;
+  align-items: flex-start;
+}
+.step-num {
+  width: 28px; height: 28px;
+  background: var(--accent);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  flex-shrink: 0;
+  color: white;
+}
+.step-body { font-size: 13.5px; color: var(--text2); line-height: 1.6; padding-top: 3px; }
+.step-body strong { color: var(--text); }
+
+/* ─── FADE-IN ANIMATION ──────────────────────────────────────── */
+.section { animation: fadeUp 0.4s ease both; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── SCROLLBAR ──────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 6px; }
+
+/* ─── RESPONSIVE ─────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  :root { --nav-w: 0px; }
+  #sidebar { display: none; }
+  #main { margin-left: 0; }
+  .layer-cards { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  .layer-cards { grid-template-columns: 1fr; }
+  .hero-title  { font-size: 28px; }
+  .section     { padding: 36px 20px; }
+  .topbar      { padding: 0 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════ SIDEBAR ═══════════════════════════════ -->
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-label">Team Reference</div>
+    <div class="logo-title">Hybrid Test<br>Framework</div>
+    <div class="logo-sub">Selenium · RestAssured · JDBC</div>
+    <div class="logo-badge">v1.0 &nbsp;·&nbsp; <span>55 files</span></div>
+  </div>
+
+  <div class="nav-section-label">Getting Started</div>
+  <a class="nav-item active" href="#hero" onclick="setActive(this)">
+    <span class="nav-icon">🏠</span> Overview
+  </a>
+  <a class="nav-item" href="#architecture" onclick="setActive(this)">
+    <span class="nav-icon">🏗️</span> Architecture
+  </a>
+  <a class="nav-item" href="#quickstart" onclick="setActive(this)">
+    <span class="nav-icon">⚡</span> Quick Start
+  </a>
+  <a class="nav-item" href="#config" onclick="setActive(this)">
+    <span class="nav-icon">⚙️</span> Configuration
+    <span class="nav-badge badge-core">core</span>
+  </a>
+
+  <div class="nav-section-label">Layers</div>
+  <a class="nav-item" href="#ui-layer" onclick="setActive(this)">
+    <span class="nav-icon">🖥️</span> UI Layer
+    <span class="nav-badge badge-ui">Selenium</span>
+  </a>
+  <a class="nav-item" href="#api-layer" onclick="setActive(this)">
+    <span class="nav-icon">🔗</span> API Layer
+    <span class="nav-badge badge-api">REST</span>
+  </a>
+  <a class="nav-item" href="#db-layer" onclick="setActive(this)">
+    <span class="nav-icon">🗄️</span> DB Layer
+    <span class="nav-badge badge-db">JDBC</span>
+  </a>
+  <a class="nav-item" href="#context" onclick="setActive(this)">
+    <span class="nav-icon">🔀</span> TestContext
+    <span class="nav-badge badge-core">bridge</span>
+  </a>
+
+  <div class="nav-section-label">Test Patterns</div>
+  <a class="nav-item" href="#patterns" onclick="setActive(this)">
+    <span class="nav-icon">📐</span> All Patterns
+  </a>
+  <a class="nav-item" href="#hybrid" onclick="setActive(this)">
+    <span class="nav-icon">⚗️</span> Hybrid Flows
+    <span class="nav-badge badge-new">key</span>
+  </a>
+
+  <div class="nav-section-label">Reference</div>
+  <a class="nav-item" href="#base-classes" onclick="setActive(this)">
+    <span class="nav-icon">📦</span> Base Classes
+  </a>
+  <a class="nav-item" href="#listeners" onclick="setActive(this)">
+    <span class="nav-icon">👂</span> Listeners
+    <span class="nav-badge badge-new">new</span>
+  </a>
+  <a class="nav-item" href="#data" onclick="setActive(this)">
+    <span class="nav-icon">📊</span> Test Data
+  </a>
+  <a class="nav-item" href="#rules" onclick="setActive(this)">
+    <span class="nav-icon">📏</span> Golden Rules
+  </a>
+
+  <div class="sidebar-footer">
+    <strong>Selenium 4.18 · TestNG 7.9</strong><br>
+    RestAssured 5.4 · HikariCP 5.1<br>
+    Postgres 42.7 · Oracle ojdbc11
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════ MAIN ══════════════════════════════════ -->
+<main id="main">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <span class="topbar-title">Hybrid Test Framework — Team Guide</span>
+    <div class="topbar-pills">
+      <span class="pill pill-ui">🖥️ UI</span>
+      <span class="pill pill-api">🔗 API</span>
+      <span class="pill pill-db">🗄️ DB</span>
+    </div>
+  </div>
+
+  <!-- ─── HERO ─────────────────────────────────────────────────────────── -->
+  <div id="hero" class="section">
+    <div class="hero-eyebrow">Java · TestNG · Selenium · RestAssured · JDBC + HikariCP</div>
+    <h1 class="hero-title">The Complete<br>Hybrid Test Framework</h1>
+    <p class="hero-sub">
+      A production-grade automation framework that lets you write UI tests, API tests, 
+      and database validations — separately or <strong style="color:var(--text)">chained together in a single test method</strong>.
+      Multi-environment, multi-country, thread-safe parallel execution out of the box.
+    </p>
+    <div class="hero-stats">
+      <div class="stat-box"><div class="stat-num">55</div><div class="stat-label">Java Files</div></div>
+      <div class="stat-box"><div class="stat-num">3</div><div class="stat-label">Test Layers</div></div>
+      <div class="stat-box"><div class="stat-num">4</div><div class="stat-label">Environments</div></div>
+      <div class="stat-box"><div class="stat-num">4</div><div class="stat-label">Countries</div></div>
+      <div class="stat-box"><div class="stat-num">2</div><div class="stat-label">Databases</div></div>
+    </div>
+  </div>
+
+  <!-- ─── ARCHITECTURE ─────────────────────────────────────────────────── -->
+  <div id="architecture" class="section">
+    <div class="section-eyebrow">System Design</div>
+    <h2 class="section-title">Architecture Overview</h2>
+    <p class="section-desc">
+      Three independent layers connected by a single thread-local bridge called <strong>TestContext</strong>. 
+      Each layer can run alone or be combined with others in any order within a single test method.
+    </p>
+
+    <!-- SVG Architecture Diagram -->
+    <div class="arch-wrap">
+      <svg viewBox="0 0 860 400" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <!-- BG grid -->
+        <defs>
+          <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1e2540" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+        <rect width="860" height="400" fill="url(#grid)" rx="10"/>
+
+        <!-- Test Class Box -->
+        <rect x="290" y="20" width="280" height="56" rx="8" fill="#111520" stroke="#3b82f6" stroke-width="1.5"/>
+        <text x="430" y="44" fill="#60a5fa" font-size="11" font-weight="600" text-anchor="middle">TEST CLASS</text>
+        <text x="430" y="62" fill="#64748b" font-size="9.5" text-anchor="middle">extends BaseTest / BaseApiTest / BaseHybridTest</text>
+
+        <!-- Arrows from Test Class down -->
+        <line x1="330" y1="76" x2="200" y2="140" stroke="#1e2540" stroke-width="1.5" marker-end="url(#arr)"/>
+        <line x1="430" y1="76" x2="430" y2="140" stroke="#1e2540" stroke-width="1.5" marker-end="url(#arr)"/>
+        <line x1="530" y1="76" x2="660" y2="140" stroke="#1e2540" stroke-width="1.5" marker-end="url(#arr)"/>
+
+        <!-- UI Layer -->
+        <rect x="60" y="140" width="260" height="130" rx="8" fill="#111520" stroke="#22c55e" stroke-width="1.5"/>
+        <rect x="60" y="140" width="260" height="24" rx="8" fill="rgba(34,197,94,0.08)"/>
+        <rect x="60" y="152" width="260" height="12" rx="0" fill="rgba(34,197,94,0.08)"/>
+        <text x="190" y="158" fill="#22c55e" font-size="10.5" font-weight="700" text-anchor="middle">🖥️  UI LAYER  (Selenium)</text>
+        <text x="80" y="184" fill="#94a3b8" font-size="9.5">BasePage  →  LoginPage  →  ...Page</text>
+        <text x="80" y="200" fill="#94a3b8" font-size="9.5">DriverFactory  +  DriverManager</text>
+        <text x="80" y="216" fill="#94a3b8" font-size="9.5">WaitUtil  (explicit waits)</text>
+        <text x="80" y="232" fill="#94a3b8" font-size="9.5">ScreenshotUtil  (auto on fail)</text>
+        <text x="80" y="252" fill="#64748b" font-size="9">ThreadLocal&lt;WebDriver&gt;  — parallel-safe</text>
+
+        <!-- API Layer -->
+        <rect x="300" y="140" width="260" height="130" rx="8" fill="#111520" stroke="#3b82f6" stroke-width="1.5"/>
+        <rect x="300" y="140" width="260" height="24" rx="8" fill="rgba(59,130,246,0.08)"/>
+        <rect x="300" y="152" width="260" height="12" rx="0" fill="rgba(59,130,246,0.08)"/>
+        <text x="430" y="158" fill="#60a5fa" font-size="10.5" font-weight="700" text-anchor="middle">🔗  API LAYER  (RestAssured)</text>
+        <text x="320" y="184" fill="#94a3b8" font-size="9.5">RequestBuilder  →  build spec</text>
+        <text x="320" y="200" fill="#94a3b8" font-size="9.5">ApiClient  →  GET/POST/PUT/DELETE</text>
+        <text x="320" y="216" fill="#94a3b8" font-size="9.5">ResponseValidator  →  assertions</text>
+        <text x="320" y="232" fill="#94a3b8" font-size="9.5">AuthService / UserService / OrderService</text>
+        <text x="320" y="252" fill="#64748b" font-size="9">ExtentReportApiFilter  — auto-logs to report</text>
+
+        <!-- DB Layer -->
+        <rect x="540" y="140" width="270" height="130" rx="8" fill="#111520" stroke="#f97316" stroke-width="1.5"/>
+        <rect x="540" y="140" width="270" height="24" rx="8" fill="rgba(249,115,22,0.08)"/>
+        <rect x="540" y="152" width="270" height="12" rx="0" fill="rgba(249,115,22,0.08)"/>
+        <text x="675" y="158" fill="#fb923c" font-size="10.5" font-weight="700" text-anchor="middle">🗄️  DB LAYER  (JDBC + HikariCP)</text>
+        <text x="558" y="184" fill="#94a3b8" font-size="9.5">ConnectionManager  →  HikariCP pools</text>
+        <text x="558" y="200" fill="#94a3b8" font-size="9.5">DbClient  →  query/execute/batch/proc</text>
+        <text x="558" y="216" fill="#94a3b8" font-size="9.5">DbValidator  →  rowExists/columnEquals</text>
+        <text x="558" y="232" fill="#94a3b8" font-size="9.5">DbQueries  →  central SQL registry</text>
+        <text x="558" y="252" fill="#64748b" font-size="9">POSTGRES  +  ORACLE  (dual DB)</text>
+
+        <!-- TestContext Bridge -->
+        <rect x="235" y="310" width="390" height="60" rx="8" fill="#0d1117" stroke="#06b6d4" stroke-width="1.5" stroke-dasharray="5,3"/>
+        <text x="430" y="334" fill="#06b6d4" font-size="11" font-weight="700" text-anchor="middle">🔀  TestContext  (ThreadLocal)</text>
+        <text x="430" y="354" fill="#64748b" font-size="9.5" text-anchor="middle">authToken · userId · orderId · createdEmail  —  shared across all 3 layers</text>
+
+        <!-- Arrows to TestContext -->
+        <line x1="190" y1="270" x2="310" y2="310" stroke="#22c55e" stroke-width="1" stroke-dasharray="4,3"/>
+        <line x1="430" y1="270" x2="430" y2="310" stroke="#3b82f6" stroke-width="1" stroke-dasharray="4,3"/>
+        <line x1="675" y1="270" x2="555" y2="310" stroke="#f97316" stroke-width="1" stroke-dasharray="4,3"/>
+
+        <!-- Arrow marker -->
+        <defs>
+          <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#1e2540"/>
+          </marker>
+        </defs>
+      </svg>
+    </div>
+
+    <div class="callout callout-info">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body">
+        <strong>The Key Insight</strong>
+        <code class="ic">TestContext</code> is the thread-local state bag that lets any layer 
+        communicate with any other layer in the same test. API writes a <code class="ic ic-green">userId</code>. 
+        DB reads it to validate the record. UI reads it to fill a login form. All in one test method, zero coupling between layers.
+      </div>
+    </div>
+
+    <div class="layer-cards" style="grid-template-columns: repeat(2, 1fr) repeat(2, 1fr); grid-template-columns: repeat(3, 1fr);">
+      <div class="layer-card ui">
+        <div class="layer-icon">🖥️</div>
+        <div class="layer-name">UI Layer</div>
+        <div class="layer-desc">Selenium-based browser automation. Page Object Model with PageFactory. ThreadLocal WebDriver for parallel-safe execution.</div>
+        <div class="layer-files">
+          <span class="file-chip">BasePage</span><span class="file-chip">LoginPage</span>
+          <span class="file-chip">DriverManager</span><span class="file-chip">WaitUtil</span>
+        </div>
+      </div>
+      <div class="layer-card api">
+        <div class="layer-icon">🔗</div>
+        <div class="layer-name">API Layer</div>
+        <div class="layer-desc">RestAssured-based HTTP testing. Fluent spec builder, typed response validator, JSON Schema validation, auto ExtentReport logging.</div>
+        <div class="layer-files">
+          <span class="file-chip">RequestBuilder</span><span class="file-chip">ApiClient</span>
+          <span class="file-chip">ResponseValidator</span><span class="file-chip">AuthService</span>
+        </div>
+      </div>
+      <div class="layer-card db">
+        <div class="layer-icon">🗄️</div>
+        <div class="layer-name">DB Layer</div>
+        <div class="layer-desc">JDBC + HikariCP. Supports Postgres and Oracle. Fluent DbValidator for assertions. Central SQL registry — no inline SQL in tests.</div>
+        <div class="layer-files">
+          <span class="file-chip">DbClient</span><span class="file-chip">DbValidator</span>
+          <span class="file-chip">DbQueries</span><span class="file-chip">RowMapper</span>
+        </div>
+      </div>
+      <div class="layer-card ctx">
+        <div class="layer-icon">🔀</div>
+        <div class="layer-name">TestContext</div>
+        <div class="layer-desc">ThreadLocal state bag. The bridge between layers. API writes tokens/IDs, UI reads for login, DB reads for validation.</div>
+        <div class="layer-files">
+          <span class="file-chip">TestContext</span><span class="file-chip">authToken</span>
+          <span class="file-chip">userId</span><span class="file-chip">orderId</span>
+        </div>
+      </div>
+      <div class="layer-card list">
+        <div class="layer-icon">👂</div>
+        <div class="layer-name">Listeners</div>
+        <div class="layer-desc">Auto screenshot on fail, ExtentReport lifecycle, global retry via RetryTransformer, soft-assert safety net via SoftAssertListener.</div>
+        <div class="layer-files">
+          <span class="file-chip">TestListener</span><span class="file-chip">RetryAnalyzer</span>
+          <span class="file-chip">RetryTransformer</span><span class="file-chip">ExtentReportMgr</span>
+        </div>
+      </div>
+      <div class="layer-card cfg">
+        <div class="layer-icon">⚙️</div>
+        <div class="layer-name">Config</div>
+        <div class="layer-desc">Singleton ConfigManager reads env+country from system properties, resolves URLs and DB credentials from env-config.json.</div>
+        <div class="layer-files">
+          <span class="file-chip">ConfigManager</span><span class="file-chip">EnvConfig</span>
+          <span class="file-chip">env-config.json</span><span class="file-chip">DbType</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── QUICKSTART ────────────────────────────────────────────────────── -->
+  <div id="quickstart" class="section">
+    <div class="section-eyebrow">Getting Started</div>
+    <h2 class="section-title">Quick Start</h2>
+    <p class="section-desc">Import the project, fill in your env-config.json URLs, and run your first test in under 5 minutes.</p>
+
+    <ol class="steps">
+      <li>
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>Clone & import into IntelliJ / Eclipse</strong><br>
+        File → Open → select the <code class="ic">pom.xml</code>. Maven will download all 15 dependencies automatically.</div>
+      </li>
+      <li>
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>Fill in env-config.json</strong><br>
+        Edit <code class="ic">src/test/resources/config/env-config.json</code>. Replace placeholder URLs and DB credentials with your real ones. Set <code class="ic">oracle: null</code> for any country that doesn't use Oracle.</div>
+      </li>
+      <li>
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>Add your locators to LoginPage.java</strong><br>
+        Replace <code class="ic">id="username"</code> etc. in <code class="ic">LoginPage.java</code> with your application's actual selectors.</div>
+      </li>
+      <li>
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>Run the sample tests</strong><br>
+        <code class="ic">mvn test -Denv=qa -Dcountry=IN</code><br>
+        Chrome opens, tests run, ExtentReport HTML is generated in <code class="ic">reports/</code>.</div>
+      </li>
+      <li>
+        <div class="step-num">5</div>
+        <div class="step-body"><strong>Write your first test</strong><br>
+        Create a class extending <code class="ic">BaseTest</code> (UI), <code class="ic">BaseApiTest</code> (API), or <code class="ic">BaseHybridTest</code> (both). See the Patterns section for templates.</div>
+      </li>
+    </ol>
+
+    <div class="h2">Run Commands</div>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="code-lang">bash</span>
+        <span class="code-title">Maven CLI — all common scenarios</span>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+      <pre><span class="cm"># ── Defaults: env=qa, country=IN, local chrome ──────────────</span>
+mvn test
+
+<span class="cm"># ── Specific environment and country ────────────────────────</span>
+mvn test <span class="op">-D</span>env=uat <span class="op">-D</span>country=US <span class="op">-D</span>browser=firefox
+
+<span class="cm"># ── Remote Selenium Grid ────────────────────────────────────</span>
+<span class="kw">export</span> SELENIUM_GRID_URL=http://grid:4444/wd/hub
+mvn test <span class="op">-D</span>execution=remote <span class="op">-D</span>env=qa <span class="op">-D</span>country=UK
+
+<span class="cm"># ── Run only API tests (no browser started) ─────────────────</span>
+mvn test <span class="op">-D</span>groups=api
+
+<span class="cm"># ── Run only DB tests (no browser, no API calls) ────────────</span>
+mvn test <span class="op">-D</span>groups=db
+
+<span class="cm"># ── Run full-stack hybrid tests ──────────────────────────────</span>
+mvn test <span class="op">-D</span>groups=fullflow
+
+<span class="cm"># ── Smoke across all layers ──────────────────────────────────</span>
+mvn test <span class="op">-D</span>groups=smoke <span class="op">-D</span>env=qa <span class="op">-D</span>country=IN
+
+<span class="cm"># ── Disable retries (useful for debugging) ───────────────────</span>
+mvn test <span class="op">-D</span>retry.count=0</pre>
+    </div>
+  </div>
+
+  <!-- ─── CONFIG ───────────────────────────────────────────────────────── -->
+  <div id="config" class="section">
+    <div class="section-eyebrow">Configuration</div>
+    <h2 class="section-title">Config System</h2>
+    <p class="section-desc">Everything is driven by two sources: Maven system properties (what to run) and env-config.json (where to run it). Zero hardcoded URLs anywhere in test code.</p>
+
+    <div class="h2">System Properties</div>
+    <table class="ref-table">
+      <tr><th>Property</th><th>Default</th><th>Options</th><th>What it controls</th></tr>
+      <tr><td><code>-Denv</code></td><td>qa</td><td>dev · qa · uat</td><td>Which URL/DB block to load from env-config.json</td></tr>
+      <tr><td><code>-Dcountry</code></td><td>IN</td><td>IN · US · UK · AU</td><td>Which country-specific config + test data to use</td></tr>
+      <tr><td><code>-Dexecution</code></td><td>local</td><td>local · remote</td><td>Local ChromeDriver or Selenium Grid RemoteWebDriver</td></tr>
+      <tr><td><code>-Dbrowser</code></td><td>chrome</td><td>chrome · firefox · edge</td><td>Browser for UI tests</td></tr>
+      <tr><td><code>-Dretry.count</code></td><td>1</td><td>0 · 1 · 2 · 3</td><td>Retries per failing test before final FAIL</td></tr>
+      <tr><td><code>-Dgroups</code></td><td>(all)</td><td>smoke · api · db · hybrid · fullflow · regression · negative</td><td>TestNG group filter</td></tr>
+    </table>
+
+    <div class="h2">env-config.json Structure</div>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="code-lang">json</span>
+        <span class="code-title">src/test/resources/config/env-config.json</span>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+      <pre>{
+  <span class="st">"environments"</span>: {
+    <span class="st">"qa"</span>: {                          <span class="cm">// env key — matches -Denv=qa</span>
+      <span class="st">"IN"</span>: {                        <span class="cm">// country key — matches -Dcountry=IN</span>
+        <span class="st">"baseUrl"</span>: <span class="st">"https://qa.myapp.in"</span>,
+        <span class="st">"apiUrl"</span>:  <span class="st">"https://qa-api.myapp.in"</span>,
+
+        <span class="st">"postgres"</span>: {              <span class="cm">// null if Postgres not used here</span>
+          <span class="st">"url"</span>:      <span class="st">"jdbc:postgresql://host:5432/db"</span>,
+          <span class="st">"username"</span>: <span class="st">"qa_pg_user"</span>,
+          <span class="st">"password"</span>: <span class="st">"qa_pg_pass"</span>,
+          <span class="st">"schema"</span>:   <span class="st">"public"</span>,
+          <span class="st">"poolSize"</span>: <span class="nu">5</span>
+        },
+
+        <span class="st">"oracle"</span>: {                <span class="cm">// null if Oracle not used here</span>
+          <span class="st">"url"</span>:      <span class="st">"jdbc:oracle:thin:@host:1521:ORCL"</span>,
+          <span class="st">"username"</span>: <span class="st">"qa_ora_user"</span>,
+          <span class="st">"password"</span>: <span class="st">"qa_ora_pass"</span>,
+          <span class="st">"schema"</span>:   <span class="st">"QA_SCHEMA"</span>,
+          <span class="st">"poolSize"</span>: <span class="nu">3</span>
+        }
+      }
+    }
+  }
+}</pre>
+    </div>
+
+    <div class="callout callout-tip">
+      <div class="callout-icon">✅</div>
+      <div class="callout-body">
+        <strong>Null-safe Oracle</strong>
+        Setting <code class="ic">"oracle": null</code> for a country/env combination is perfectly safe. 
+        <code class="ic">ConfigManager.hasDb(DbType.ORACLE)</code> returns <code class="ic ic-orange">false</code> and 
+        <code class="ic">BaseTest.orDb</code> will be <code class="ic ic-orange">null</code>. 
+        Always guard Oracle steps with <code class="ic">if (orDb != null)</code>.
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── UI LAYER ──────────────────────────────────────────────────────── -->
+  <div id="ui-layer" class="section">
+    <div class="section-eyebrow">Layer 1</div>
+    <h2 class="section-title">UI Layer — Selenium</h2>
+    <p class="section-desc">Browser automation using Selenium 4 + WebDriverManager. All page interactions go through Page Objects that extend BasePage. Tests never call WebDriver directly.</p>
+
+    <div class="h2">How to Write a Page Object</div>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="code-lang">java</span>
+        <span class="code-title">pages/DashboardPage.java — extend BasePage</span>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+      <pre><span class="kw">public class</span> <span class="cl">DashboardPage</span> <span class="kw">extends</span> <span class="cl">BasePage</span> {
+
+  <span class="cm">// ── @FindBy locators (PageFactory) ───────────────────────────</span>
+  <span class="an">@FindBy</span>(css = <span class="st">".welcome-banner"</span>)
+  <span class="kw">private</span> <span class="cl">WebElement</span> welcomeBanner;
+
+  <span class="an">@FindBy</span>(id = <span class="st">"logoutBtn"</span>)
+  <span class="kw">private</span> <span class="cl">WebElement</span> logoutBtn;
+
+  <span class="cm">// Dynamic locators use By.*</span>
+  <span class="kw">private final</span> <span class="cl">By</span> orderRow = <span class="cl">By</span>.cssSelector(<span class="st">"[data-order-id='%s']"</span>);
+
+  <span class="cm">// ── Actions ───────────────────────────────────────────────────</span>
+  <span class="kw">public</span> <span class="cl">DashboardPage</span> <span class="fn">open</span>() {
+    navigateTo(config().getBaseUrl() + <span class="st">"/dashboard"</span>);
+    <span class="kw">return this</span>;
+  }
+
+  <span class="kw">public</span> <span class="cl">String</span> <span class="fn">getWelcomeMessage</span>() {
+    <span class="kw">return</span> getText(<span class="cl">By</span>.cssSelector(<span class="st">".welcome-banner"</span>));
+  }
+
+  <span class="kw">public boolean</span> <span class="fn">isOrderVisible</span>(<span class="cl">String</span> orderId) {
+    <span class="kw">return</span> isDisplayed(<span class="cl">By</span>.cssSelector(<span class="st">"[data-order-id='"</span> + orderId + <span class="st">"']"</span>));
+  }
+
+  <span class="cm">// ── RULE: return raw values — never assert inside pages ───────</span>
+  <span class="kw">public</span> <span class="cl">String</span> <span class="fn">getTitle</span>()      { <span class="kw">return</span> getPageTitle(); }
+  <span class="kw">public</span> <span class="cl">String</span> <span class="fn">getCurrentUrl</span>() { <span class="kw">return</span> getCurrentUrl(); }
+}</pre>
+    </div>
+
+    <div class="h2">BasePage Helper Methods</div>
+    <table class="ref-table">
+      <tr><th>Method</th><th>What it does</th></tr>
+      <tr><td><code>click(By locator)</code></td><td>Waits for element to be clickable, then clicks</td></tr>
+      <tr><td><code>type(By locator, String text)</code></td><td>Clears field, waits for visible, types text</td></tr>
+      <tr><td><code>getText(By locator)</code></td><td>Waits for visible, returns trimmed text</td></tr>
+      <tr><td><code>isDisplayed(By locator)</code></td><td>Returns true/false — safe, no exception if missing</td></tr>
+      <tr><td><code>navigateTo(String url)</code></td><td>Navigates driver to URL</td></tr>
+      <tr><td><code>jsClick(WebElement)</code></td><td>JavaScript click — for elements that intercept events</td></tr>
+      <tr><td><code>scrollIntoView(WebElement)</code></td><td>Scrolls element into viewport</td></tr>
+      <tr><td><code>driver()</code></td><td>Returns current thread's WebDriver (rarely needed)</td></tr>
+    </table>
+
+    <div class="callout callout-rule">
+      <div class="callout-icon">📏</div>
+      <div class="callout-body">
+        <strong>Page Object Rule</strong>
+        Pages only perform <em>actions</em> and return <em>raw values</em>. 
+        They never contain <code class="ic">assertThat()</code> or <code class="ic">Assert.assertEquals()</code>. 
+        All assertions belong in the test class.
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── API LAYER ─────────────────────────────────────────────────────── -->
+  <div id="api-layer" class="section">
+    <div class="section-eyebrow">Layer 2</div>
+    <h2 class="section-title">API Layer — RestAssured</h2>
+    <p class="section-desc">RestAssured wrapped in a clean service/builder/validator pattern. Domain services (AuthService, UserService) mirror the Page Object pattern — test classes never call RestAssured directly.</p>
+
+    <div class="tabs-wrap">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab(this,'api-tabs','tab-builder')">RequestBuilder</button>
+        <button class="tab-btn" onclick="switchTab(this,'api-tabs','tab-validator')">ResponseValidator</button>
+        <button class="tab-btn" onclick="switchTab(this,'api-tabs','tab-services')">API Services</button>
+        <button class="tab-btn" onclick="switchTab(this,'api-tabs','tab-endpoints')">ApiEndpoints</button>
+      </div>
+
+      <div id="api-tabs">
+        <div id="tab-builder" class="tab-pane active">
+          <div class="code-wrap">
+            <div class="code-header">
+              <span class="code-lang">java</span>
+              <span class="code-title">RequestBuilder — fluent spec factory</span>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            </div>
+            <pre><span class="cm">// Full chain</span>
+<span class="cl">RequestSpecification</span> spec = <span class="cl">RequestBuilder</span>.create()
+    .withAuth()              <span class="cm">// Bearer token from TestContext — automatic</span>
+    .withCountryHeader()     <span class="cm">// adds X-Country-Code: IN</span>
+    .withQueryParam(<span class="st">"page"</span>, <span class="nu">1</span>)
+    .withQueryParam(<span class="st">"size"</span>, <span class="nu">20</span>)
+    .relaxedHttps()          <span class="cm">// ignores self-signed certs in non-prod</span>
+    .build();
+
+<span class="cm">// With explicit token (not from context)</span>
+<span class="cl">RequestSpecification</span> spec2 = <span class="cl">RequestBuilder</span>.create()
+    .withAuth(<span class="st">"some-other-token"</span>)
+    .withHeader(<span class="st">"X-Correlation-ID"</span>, UUID.randomUUID().toString())
+    .withBody(myRequestPojo)
+    .build();
+
+<span class="cm">// Then execute</span>
+<span class="cl">Response</span> response = <span class="cl">ApiClient</span>.post(spec, <span class="cl">ApiEndpoints</span>.User.CREATE);</pre>
+          </div>
+        </div>
+        <div id="tab-validator" class="tab-pane">
+          <div class="code-wrap">
+            <div class="code-header">
+              <span class="code-lang">java</span>
+              <span class="code-title">ResponseValidator — fluent assertion chain</span>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            </div>
+            <pre><span class="cl">ResponseValidator</span>.of(response)
+    .statusCode(<span class="nu">201</span>)
+    .contentTypeIsJson()
+    .hasField(<span class="st">"data.userId"</span>)            <span class="cm">// field exists and not blank</span>
+    .fieldEquals(<span class="st">"data.status"</span>, <span class="st">"ACTIVE"</span>)  <span class="cm">// exact value match</span>
+    .fieldContains(<span class="st">"data.email"</span>, <span class="st">"@myapp"</span>) <span class="cm">// contains substring</span>
+    .listNotEmpty(<span class="st">"data.roles"</span>)           <span class="cm">// array is not empty</span>
+    .responseTimeBelow(<span class="nu">3000</span>)              <span class="cm">// under 3 seconds</span>
+    .matchesSchema(<span class="st">"schemas/user-response.json"</span>) <span class="cm">// JSON Schema</span>
+    .validate();                           <span class="cm">// runs all soft assertions</span>
+
+<span class="cm">// Extract values for downstream use</span>
+<span class="cl">UserResponse</span> user = response.jsonPath().getObject(<span class="st">"data"</span>, <span class="cl">UserResponse</span>.class);
+<span class="cl">String</span> token = <span class="cl">ResponseValidator</span>.of(response).extractString(<span class="st">"accessToken"</span>);</pre>
+          </div>
+        </div>
+        <div id="tab-services" class="tab-pane">
+          <div class="code-wrap">
+            <div class="code-header">
+              <span class="code-lang">java</span>
+              <span class="code-title">API Services — pre-wired in BaseTest</span>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            </div>
+            <pre><span class="cm">// ── AuthService ──────────────────────────────────────────────</span>
+authService.loginExpectSuccess(<span class="st">"admin@qa.in"</span>, <span class="st">"Admin@1234"</span>);
+<span class="cm">// → calls POST /api/v1/auth/login, asserts 200</span>
+<span class="cm">// → stores accessToken in TestContext.authToken</span>
+<span class="cm">// → all subsequent .withAuth() calls pick it up automatically</span>
+
+<span class="cm">// ── UserService ──────────────────────────────────────────────</span>
+<span class="cl">CreateUserRequest</span> req = userService.buildUniqueUserRequest();
+<span class="cm">// → builds a fresh user with UUID email for this country</span>
+
+<span class="cl">UserResponse</span> user = userService.createUserExpectSuccess(req);
+<span class="cm">// → POST /api/v1/users, asserts 201 + schema</span>
+<span class="cm">// → stores userId + email in TestContext automatically</span>
+
+<span class="cm">// ── OrderService ─────────────────────────────────────────────</span>
+orderService.createOrder(Map.of(
+    <span class="st">"productId"</span>, <span class="st">"PROD-001"</span>,
+    <span class="st">"quantity"</span>,  <span class="nu">2</span>
+));
+<span class="cm">// → reads userId from TestContext automatically</span>
+<span class="cm">// → stores orderId in TestContext</span></pre>
+          </div>
+        </div>
+        <div id="tab-endpoints" class="tab-pane">
+          <div class="code-wrap">
+            <div class="code-header">
+              <span class="code-lang">java</span>
+              <span class="code-title">ApiEndpoints — central URL registry</span>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            </div>
+            <pre><span class="cm">// All endpoints live in ApiEndpoints.java — never write URL strings in tests</span>
+
+<span class="cl">ApiEndpoints</span>.Auth.LOGIN          <span class="cm">// "/api/v1/auth/login"</span>
+<span class="cl">ApiEndpoints</span>.User.CREATE         <span class="cm">// "/api/v1/users"</span>
+<span class="cl">ApiEndpoints</span>.User.GET_BY_ID      <span class="cm">// "/api/v1/users/{userId}"</span>
+<span class="cl">ApiEndpoints</span>.Order.CREATE        <span class="cm">// "/api/v1/orders"</span>
+<span class="cl">ApiEndpoints</span>.Order.UPDATE_STATUS <span class="cm">// "/api/v1/orders/{orderId}/status"</span>
+
+<span class="cm">// Path params: use ApiClient.get(spec, endpoint, Map.of("userId", id))</span>
+<span class="cl">Response</span> r = <span class="cl">ApiClient</span>.get(spec, <span class="cl">ApiEndpoints</span>.User.GET_BY_ID,
+    Map.of(<span class="st">"userId"</span>, <span class="st">"usr_abc123"</span>));
+
+<span class="cm">// Add new endpoint: just add a constant in the right inner class</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── DB LAYER ──────────────────────────────────────────────────────── -->
+  <div id="db-layer" class="section">
+    <div class="section-eyebrow">Layer 3</div>
+    <h2 class="section-title">DB Layer — JDBC + HikariCP</h2>
+    <p class="section-desc">Two database clients (Postgres + Oracle) managed through HikariCP connection pools. Three assertion styles: fluent validator, typed mapper, or generic map. All SQL lives in DbQueries — never inline in test code.</p>
+
+    <div class="tabs-wrap">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab(this,'db-tabs','tab-dbvalidator')">DbValidator</button>
+        <button class="tab-btn" onclick="switchTab(this,'db-tabs','tab-dbclient')">DbClient Methods</button>
+        <button class="tab-btn" onclick="switchTab(this,'db-tabs','tab-dbmapper')">Typed Mapper</button>
+        <button class="tab-btn" onclick="switchTab(this,'db-tabs','tab-dbqueries')">DbQueries</button>
+        <button class="tab-btn" onclick="switchTab(this,'db-tabs','tab-dbhelper')">DbTestHelper</button>
+      </div>
+
+      <div id="db-tabs">
+        <div id="tab-dbvalidator" class="tab-pane active">
+          <div class="code-wrap">
+            <div class="code-header">
+              <span class="code-lang">java</span>
+              <span class="code-title">DbValidator — fluent assertion chain (preferred style)</span>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            </div>
+            <pre><span class="cm">// Style 1: fluent chain via dbAssert() shortcut in BaseTest</span>
+dbAssert(pgDb)
+    .forQuery(<span class="cl">DbQueries</span>.User.FIND_BY_EMAIL, email)
+    .rowExists()                         <span class="cm">// ≥ 1 row returned</span>
+    .columnEquals(<span class="st">"status"</span>, <span class="st">"ACTIVE"</span>)    <span class="cm">// first row, column = value</span>
+    .columnEquals(<span class="st">"country"</span>, country())  <span class="cm">// uses active test country</span>
+    .columnNotBlank(<span class="st">"user_id"</span>)          <span class="cm">// not null and not empty</span>
+    .columnIsNull(<span class="st">"deleted_at"</span>)         <span class="cm">// IS NULL in DB</span>
+    .validate();                         <span class="cm">// runs all soft assertions</span>
+
+<span class="cm">// Count assertions</span>
+dbAssert(pgDb)
+    .forQuery(<span class="cl">DbQueries</span>.Order.COUNT_BY_USER, userId)
+    .scalarEquals(<span class="nu">1L</span>)                    <span class="cm">// COUNT(*) = 1</span>
+    .validate();
+
+<span class="cm">// Multi-row assertions</span>
+dbAssert(pgDb)
+    .forQuery(<span class="cl">DbQueries</span>.Order.FIND_BY_USER, userId)
+    .rowCountAtLeast(<span class="nu">1</span>)                  <span class="cm">// at least 1 order</span>
+    .rowCountEquals(<span class="nu">3</span>)                   <span class="cm">// exactly 3 orders</span>
+    .validate();
+
+<span class="cm">// Oracle (same API, different client)</span>
+<span class="kw">if</span> (orDb != <span class="kw">null</span>) {
+    dbAssert(orDb)
+        .forQuery(<span class="cl">DbQueries</span>.Audit.COUNT_EVENTS_BY_ENTITY, userId, <span class="st">"USER_CREATED"</span>)
+        .scalarEquals(<span class="nu">1L</span>)
+        .validate();
+}</pre>
+          </div>
+        </div>
+        <div id="tab-dbclient" class="tab-pane">
+          <table class="ref-table">
+            <tr><th>Method</th><th>Returns</th><th>Use For</th></tr>
+            <tr><td><code>query(sql, mapper, params)</code></td><td>List&lt;T&gt;</td><td>SELECT → multiple typed rows</td></tr>
+            <tr><td><code>query(sql, params)</code></td><td>List&lt;Map&gt;</td><td>SELECT → generic rows (no POJO)</td></tr>
+            <tr><td><code>queryOne(sql, mapper, params)</code></td><td>Optional&lt;T&gt;</td><td>SELECT → 0 or 1 row; throws if &gt;1</td></tr>
+            <tr><td><code>queryScalar(sql, params)</code></td><td>T</td><td>COUNT / MAX / single value</td></tr>
+            <tr><td><code>execute(sql, params)</code></td><td>int (rows affected)</td><td>INSERT / UPDATE / DELETE</td></tr>
+            <tr><td><code>executeAndReturnKey(sql, params)</code></td><td>Object (generated PK)</td><td>INSERT + get back the new ID</td></tr>
+            <tr><td><code>executeBatch(sql, paramSets)</code></td><td>int[]</td><td>Batch INSERT/UPDATE (faster)</td></tr>
+            <tr><td><code>callProcedure(callSql, params)</code></td><td>Object (OUT param)</td><td>Stored proc / function call</td></tr>
+          </table>
+          <div class="callout callout-info">
+            <div class="callout-icon">💡</div>
+            <div class="callout-body">
+              <strong>Both clients in BaseTest</strong>
+              <code class="ic">pgDb</code> and <code class="ic">orDb</code> are automatically created in <code class="ic">BaseTest.setUp()</code> 
+              if the DB is configured for the active env+country. <code class="ic">orDb</code> will be <code class="ic ic-orange">null</code> 
+              if Oracle is not configured — always guard with <code class="ic">if (orDb != null)</code>.
+            </div>
+          </div>
+        </div>
+        <div id="tab-dbmapper" class="tab-pane">
+          <div class="code-wrap">
+            <div class="code-header">
+              <span class="code-lang">java</span>
+              <span class="code-title">RowMapper — typed POJO from ResultSet</span>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            </div>
+            <pre><span class="cm">// Style 2: typed mapper → get a strongly-typed POJO back</span>
+<span class="cl">Optional</span>&lt;<span class="cl">UserDbRecord</span>&gt; result = pgDb.queryOne(
+    <span class="cl">DbQueries</span>.User.FIND_BY_EMAIL,
+    <span class="cl">UserDbRecord</span>.rowMapper(),   <span class="cm">// built-in mapper on the POJO class</span>
+    email);
+
+<span class="cl">UserDbRecord</span> user = result.orElseThrow();
+assertThat(user.getStatus()).isEqualTo(<span class="st">"ACTIVE"</span>);
+assertThat(user.getEmail()).isEqualTo(expectedEmail);
+
+<span class="cm">// Writing your own RowMapper for a new table</span>
+<span class="kw">public class</span> <span class="cl">ProductDbRecord</span> {
+    <span class="kw">public static</span> <span class="cl">RowMapper</span>&lt;<span class="cl">ProductDbRecord</span>&gt; <span class="fn">rowMapper</span>() {
+        <span class="kw">return</span> rs -> <span class="cl">ProductDbRecord</span>.builder()
+            .productId(rs.getString(<span class="st">"product_id"</span>))
+            .name(rs.getString(<span class="st">"name"</span>))
+            .price(rs.getBigDecimal(<span class="st">"price"</span>))
+            .build();
+    }
+}
+
+<span class="cm">// Style 3: generic map (no POJO — good for one-off queries)</span>
+<span class="cl">List</span>&lt;<span class="cl">Map</span>&lt;<span class="cl">String</span>, <span class="cl">Object</span>&gt;&gt; rows = pgDb.query(
+    <span class="st">"SELECT * FROM audit_log WHERE entity_id = ?"</span>, userId);
+<span class="cl">String</span> evt = (<span class="cl">String</span>) rows.get(<span class="nu">0</span>).get(<span class="st">"event_type"</span>); <span class="cm">// keys always lowercase</span></pre>
+          </div>
+        </div>
+        <div id="tab-dbqueries" class="tab-pane">
+          <div class="code-wrap">
+            <div class="code-header">
+              <span class="code-lang">java</span>
+              <span class="code-title">DbQueries — central SQL registry</span>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            </div>
+            <pre><span class="cm">// ALL SQL lives in DbQueries.java — grouped by domain</span>
+<span class="kw">public final class</span> <span class="cl">DbQueries</span> {
+
+    <span class="kw">public static final class</span> <span class="cl">User</span> {
+        <span class="kw">public static final</span> <span class="cl">String</span> FIND_BY_EMAIL =
+            <span class="st">"SELECT user_id, email, status, country FROM users WHERE email = ?"</span>;
+        <span class="kw">public static final</span> <span class="cl">String</span> EXISTS_BY_EMAIL =
+            <span class="st">"SELECT COUNT(*) FROM users WHERE email = ?"</span>;
+        <span class="kw">public static final</span> <span class="cl">String</span> UPDATE_STATUS =
+            <span class="st">"UPDATE users SET status = ?, updated_at = NOW() WHERE user_id = ?"</span>;
+        <span class="cm">// ... more queries</span>
+    }
+
+    <span class="kw">public static final class</span> <span class="cl">Order</span> {
+        <span class="kw">public static final</span> <span class="cl">String</span> COUNT_BY_USER =
+            <span class="st">"SELECT COUNT(*) FROM orders WHERE user_id = ?"</span>;
+        <span class="cm">// ... more queries</span>
+    }
+
+    <span class="kw">public static final class</span> <span class="cl">Audit</span> {
+        <span class="cm">// Oracle-specific variant (no LIMIT — uses ROWNUM)</span>
+        <span class="kw">public static final</span> <span class="cl">String</span> LATEST_EVENT_ORA =
+            <span class="st">"SELECT event_type FROM audit_log WHERE entity_id = ? AND ROWNUM = 1"</span>;
+    }
+}</pre>
+          </div>
+          <div class="callout callout-rule">
+            <div class="callout-icon">📏</div>
+            <div class="callout-body">
+              <strong>Rule: No Inline SQL</strong>
+              Never write SQL strings directly in test classes. All queries go in <code class="ic">DbQueries.java</code>. 
+              For Oracle-specific syntax, add a <code class="ic">_ORA</code> constant alongside the Postgres one.
+            </div>
+          </div>
+        </div>
+        <div id="tab-dbhelper" class="tab-pane">
+          <div class="code-wrap">
+            <div class="code-header">
+              <span class="code-lang">java</span>
+              <span class="code-title">DbTestHelper — reusable setup/teardown</span>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            </div>
+            <pre><span class="cm">// dbHelper is pre-wired in BaseTest</span>
+
+<span class="cm">// ── Cleanup (@AfterMethod) ───────────────────────────────────</span>
+dbHelper.cleanupTestUser(email);         <span class="cm">// delete by email</span>
+dbHelper.deleteUserById(userId);          <span class="cm">// delete by ID</span>
+dbHelper.cleanupTestUsersByPattern(<span class="st">"test_%@auto.in.com"</span>); <span class="cm">// bulk cleanup</span>
+
+<span class="cm">// ── State setup (@BeforeMethod) ─────────────────────────────</span>
+dbHelper.forceUserStatus(userId, <span class="st">"INACTIVE"</span>); <span class="cm">// force pre-condition</span>
+
+<span class="cm">// ── Existence checks ─────────────────────────────────────────</span>
+<span class="kw">boolean</span> exists = dbHelper.userExistsByEmail(email);
+<span class="kw">boolean</span> hasOrder = dbHelper.orderExists(orderId);
+
+<span class="cm">// ── Oracle helpers (returns 0 if Oracle not configured) ──────</span>
+<span class="kw">long</span> count = dbHelper.auditEventCount(userId, <span class="st">"USER_CREATED"</span>);</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── TESTCONTEXT ───────────────────────────────────────────────────── -->
+  <div id="context" class="section">
+    <div class="section-eyebrow">The Bridge</div>
+    <h2 class="section-title">TestContext — Layer Bridge</h2>
+    <p class="section-desc">
+      <code class="ic">TestContext</code> is a <strong>ThreadLocal state bag</strong> that lives for exactly one test method. 
+      It's the mechanism that allows API calls, UI actions, and DB validations to share data in a single test thread without any coupling between layers.
+    </p>
+
+    <div class="bridge-visual">
+      <div class="bridge-col">
+        <div class="bridge-col-title" style="color:var(--accent2)">🔗 API Services write</div>
+        <div class="write-item">→ authToken</div>
+        <div class="write-item">→ userId</div>
+        <div class="write-item">→ createdEmail</div>
+        <div class="write-item">→ orderId</div>
+        <div class="write-item">→ store("key", value)</div>
+      </div>
+      <div class="bridge-arrow-col">
+        <div class="bridge-arrow">⬅ reads ➡</div>
+        <div style="font-size:28px; color: var(--cyan)">🔀</div>
+        <div class="bridge-arrow">TestContext</div>
+        <div class="bridge-arrow">(ThreadLocal)</div>
+      </div>
+      <div class="bridge-col">
+        <div class="bridge-col-title" style="color:var(--green)">🖥️ UI + DB read</div>
+        <div class="read-item">← ctx().getAuthToken()</div>
+        <div class="read-item">← ctx().getUserId()</div>
+        <div class="read-item">← ctx().getCreatedEmail()</div>
+        <div class="read-item">← ctx().getOrderId()</div>
+        <div class="read-item">← ctx().retrieveString("key")</div>
+      </div>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="code-lang">java</span>
+        <span class="code-title">TestContext — API writes, UI/DB reads</span>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+      <pre><span class="cm">// Inside AuthService.loginExpectSuccess() — automatically called:</span>
+<span class="cl">TestContext</span>.get().setAuthToken(loginResp.getAccessToken());
+
+<span class="cm">// Inside UserService.createUserExpectSuccess() — automatically called:</span>
+<span class="cl">TestContext</span>.get().setUserId(response.jsonPath().getString(<span class="st">"data.userId"</span>));
+<span class="cl">TestContext</span>.get().setCreatedEmail(request.getEmail());
+
+<span class="cm">// In your test — reading from context</span>
+<span class="cl">String</span> userId = ctx().getUserId();     <span class="cm">// ctx() shortcut from BaseTest</span>
+<span class="cl">String</span> email  = ctx().getCreatedEmail();
+
+<span class="cm">// Ad-hoc storage for anything not covered by the named fields</span>
+ctx().store(<span class="st">"invoiceNumber"</span>, <span class="st">"INV-0042"</span>);
+<span class="cl">String</span> invoice = ctx().retrieveString(<span class="st">"invoiceNumber"</span>);
+
+<span class="cm">// Lifecycle: automatically managed by BaseTest</span>
+<span class="cm">// @BeforeMethod → TestContext.init()</span>
+<span class="cm">// @AfterMethod  → TestContext.clear()</span></pre>
+    </div>
+  </div>
+
+  <!-- ─── PATTERNS ──────────────────────────────────────────────────────── -->
+  <div id="patterns" class="section">
+    <div class="section-eyebrow">Test Patterns</div>
+    <h2 class="section-title">All Test Patterns</h2>
+    <p class="section-desc">Five distinct patterns — from simple single-layer tests to full three-layer flows. Pick the right base class and the framework wires everything else.</p>
+
+    <!-- Flow patterns -->
+    <div class="flow-row">
+      <div class="flow-step"><div class="flow-box ui">Browser</div><div class="flow-label">BasePage</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="flow-box ui">Assert</div><div class="flow-label">AssertJ</div></div>
+      <div class="flow-desc">Pattern 1: Pure UI — extends BaseTest</div>
+    </div>
+    <div class="flow-row">
+      <div class="flow-step"><div class="flow-box api">Auth API</div><div class="flow-label">AuthService</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="flow-box api">Call API</div><div class="flow-label">UserService</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="flow-box api">Validate</div><div class="flow-label">ResponseValidator</div></div>
+      <div class="flow-desc">Pattern 2: Pure API — extends BaseApiTest</div>
+    </div>
+    <div class="flow-row">
+      <div class="flow-step"><div class="flow-box db">Query DB</div><div class="flow-label">DbClient</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="flow-box db">Assert</div><div class="flow-label">DbValidator</div></div>
+      <div class="flow-desc">Pattern 3: Pure DB — extends BaseApiTest (no browser)</div>
+    </div>
+    <div class="flow-row">
+      <div class="flow-step"><div class="flow-box api">Create via API</div><div class="flow-label">UserService</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="flow-box ctx">TestContext</div><div class="flow-label">stores userId</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="flow-box db">Verify in DB</div><div class="flow-label">DbValidator</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="flow-box ui">Login in UI</div><div class="flow-label">LoginPage</div></div>
+      <div class="flow-desc">Pattern 4: Full Stack — extends BaseHybridTest</div>
+    </div>
+    <div class="flow-row">
+      <div class="flow-step"><div class="flow-box api">API Action</div><div class="flow-label">e.g. createOrder</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="flow-box db">Poll DB</div><div class="flow-label">AwaitilityUtil</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="flow-box db">Assert State</div><div class="flow-label">DbValidator</div></div>
+      <div class="flow-desc">Pattern 5: Async — waitUntilDbRowExists()</div>
+    </div>
+  </div>
+
+  <!-- ─── HYBRID ────────────────────────────────────────────────────────── -->
+  <div id="hybrid" class="section">
+    <div class="section-eyebrow">Advanced Patterns</div>
+    <h2 class="section-title">Hybrid Flows — All Layers Together</h2>
+    <p class="section-desc">The most powerful tests in the suite. A single test method validates the same business action from all three angles: API response, database state, and browser behaviour.</p>
+
+    <div class="tabs-wrap">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab(this,'hybrid-tabs','tab-api-db-ui')">API → DB → UI</button>
+        <button class="tab-btn" onclick="switchTab(this,'hybrid-tabs','tab-db-pre-post')">DB Pre/Post</button>
+        <button class="tab-btn" onclick="switchTab(this,'hybrid-tabs','tab-async')">Async Flow</button>
+      </div>
+
+      <div id="hybrid-tabs">
+        <div id="tab-api-db-ui" class="tab-pane active">
+          <div class="code-wrap">
+            <div class="code-header">
+              <span class="code-lang">java</span>
+              <span class="code-title">Full 3-layer test: API creates user → DB verifies → UI confirms login</span>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            </div>
+            <pre><span class="kw">public class</span> <span class="cl">FullFlowTest</span> <span class="kw">extends</span> <span class="cl">BaseHybridTest</span> {
+
+  <span class="an">@Test</span>(groups = <span class="st">"fullflow"</span>)
+  <span class="kw">public void</span> <span class="fn">testCreateViaApi_VerifyDb_LoginUI</span>() {
+
+    <span class="cm">// ── Phase 1: API ─────────────────────────────────────────────</span>
+    authService.loginExpectSuccess(<span class="st">"admin@qa.in"</span>, <span class="st">"Admin@1234"</span>);
+    <span class="cl">UserResponse</span> user = userService.createUserExpectSuccess(
+        userService.buildUniqueUserRequest());
+    <span class="cm">// TestContext now has: authToken, userId, createdEmail</span>
+
+    <span class="cm">// ── Phase 2: DB — Postgres ───────────────────────────────────</span>
+    dbAssert(pgDb)
+        .forQuery(<span class="cl">DbQueries</span>.User.FIND_BY_EMAIL, user.getEmail())
+        .rowExists()
+        .columnEquals(<span class="st">"status"</span>,  <span class="st">"ACTIVE"</span>)
+        .columnEquals(<span class="st">"country"</span>, country())
+        .columnIsNull(<span class="st">"deleted_at"</span>)
+        .validate();
+
+    <span class="cm">// ── Phase 2B: DB — Oracle audit ──────────────────────────────</span>
+    <span class="kw">if</span> (orDb != <span class="kw">null</span>) {
+        dbAssert(orDb)
+            .forQuery(<span class="cl">DbQueries</span>.Audit.COUNT_EVENTS_BY_ENTITY,
+                      user.getUserId(), <span class="st">"USER_CREATED"</span>)
+            .scalarEquals(<span class="nu">1L</span>)
+            .validate();
+    }
+
+    <span class="cm">// ── Phase 3: UI — browser login ──────────────────────────────</span>
+    <span class="cl">LoginPage</span> login = loginViaUI(ctx().getCreatedEmail(), <span class="st">"Test@1234"</span>);
+    <span class="cm">// loginViaUI reads createdEmail from TestContext automatically</span>
+
+    assertThat(login.isLogoutLinkVisible())
+        .as(<span class="st">"User created via API should be able to log in"</span>)
+        .isTrue();
+  }
+}</pre>
+          </div>
+        </div>
+        <div id="tab-db-pre-post" class="tab-pane">
+          <div class="code-wrap">
+            <div class="code-header">
+              <span class="code-lang">java</span>
+              <span class="code-title">DB as source of truth: pre-condition → API action → post-condition</span>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            </div>
+            <pre><span class="an">@Test</span>(groups = <span class="st">"fullflow"</span>)
+<span class="kw">public void</span> <span class="fn">testDbPreCondition_ApiAction_DbPostCondition</span>() {
+
+  <span class="cm">// Setup: create a clean user via API</span>
+  authService.loginExpectSuccess(<span class="st">"admin@qa.in"</span>, <span class="st">"Admin@1234"</span>);
+  <span class="cl">UserResponse</span> user = userService.createUserExpectSuccess(
+      userService.buildUniqueUserRequest());
+
+  <span class="cm">// ── Pre-condition: DB confirms 0 orders ─────────────────────</span>
+  dbAssert(pgDb)
+      .forQuery(<span class="cl">DbQueries</span>.Order.COUNT_BY_USER, user.getUserId())
+      .scalarEquals(<span class="nu">0L</span>)
+      .validate();
+
+  <span class="cm">// ── API action: place an order ───────────────────────────────</span>
+  orderService.createOrder(Map.of(<span class="st">"productId"</span>, <span class="st">"PROD-001"</span>, <span class="st">"quantity"</span>, <span class="nu">1</span>));
+
+  <span class="cm">// ── Post-condition: DB confirms order was created ────────────</span>
+  dbAssert(pgDb)
+      .forQuery(<span class="cl">DbQueries</span>.Order.COUNT_BY_USER, user.getUserId())
+      .scalarEquals(<span class="nu">1L</span>)      <span class="cm">// count went from 0 → 1</span>
+      .validate();
+
+  dbAssert(pgDb)
+      .forQuery(<span class="cl">DbQueries</span>.Order.FIND_BY_ID, ctx().getOrderId())
+      .rowExists()
+      .columnEquals(<span class="st">"status"</span>, <span class="st">"PENDING"</span>)
+      .columnEquals(<span class="st">"user_id"</span>, user.getUserId())
+      .validate();
+}</pre>
+          </div>
+        </div>
+        <div id="tab-async" class="tab-pane">
+          <div class="code-wrap">
+            <div class="code-header">
+              <span class="code-lang">java</span>
+              <span class="code-title">Async flow — polling until DB catches up (Kafka / event-driven)</span>
+              <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            </div>
+            <pre"><span class="cm">// Scenario: API returns 201 immediately, but a Kafka consumer</span>
+<span class="cm">// processes the event and writes to DB asynchronously.</span>
+<span class="cm">// AwaitilityUtil polls the DB until the row appears.</span>
+
+<span class="an">@Test</span>(groups = <span class="st">"fullflow"</span>)
+<span class="kw">public void</span> <span class="fn">testAsyncOrderProcessing</span>() {
+
+  <span class="cm">// Place order via API (returns 201 immediately)</span>
+  authService.loginExpectSuccess(<span class="st">"admin@qa.in"</span>, <span class="st">"Admin@1234"</span>);
+  userService.createUserExpectSuccess(userService.buildUniqueUserRequest());
+  orderService.createOrder(Map.of(<span class="st">"productId"</span>, <span class="st">"PROD-001"</span>));
+
+  <span class="cm">// Wait up to 30s for the Kafka consumer to write the order to DB</span>
+  <span class="cl">AwaitilityUtil</span>.waitUntilDbRowExists(pgDb,
+      <span class="st">"SELECT COUNT(*) FROM orders WHERE user_id = ?"</span>,
+      ctx().getUserId());
+
+  <span class="cm">// Now assert — the row definitely exists</span>
+  dbAssert(pgDb)
+      .forQuery(<span class="cl">DbQueries</span>.Order.FIND_BY_ID, ctx().getOrderId())
+      .rowExists()
+      .columnEquals(<span class="st">"status"</span>, <span class="st">"PENDING"</span>)
+      .validate();
+
+  <span class="cm">// Wait for status to transition to PROCESSING</span>
+  <span class="cl">AwaitilityUtil</span>.waitUntilDbValueEquals(pgDb,
+      <span class="st">"SELECT status FROM orders WHERE order_id = ?"</span>,
+      <span class="st">"PROCESSING"</span>,
+      ctx().getOrderId());
+}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── BASE CLASSES ──────────────────────────────────────────────────── -->
+  <div id="base-classes" class="section">
+    <div class="section-eyebrow">Inheritance</div>
+    <h2 class="section-title">Base Test Classes</h2>
+    <p class="section-desc">Three base classes — one per test type. The correct base class determines what gets initialised: driver, context, DB clients.</p>
+
+    <table class="ref-table">
+      <tr><th>Class</th><th>Mode</th><th>Browser?</th><th>TestContext?</th><th>pgDb / orDb?</th><th>Use for</th></tr>
+      <tr>
+        <td><code>BaseTest</code></td><td>UI</td>
+        <td style="color:var(--green)">✅ Started</td>
+        <td style="color:var(--green)">✅ Init</td>
+        <td style="color:var(--green)">✅ If configured</td>
+        <td>UI automation, UI+DB, all UI tests</td>
+      </tr>
+      <tr>
+        <td><code>BaseApiTest</code></td><td>API</td>
+        <td style="color:var(--red)">❌ None</td>
+        <td style="color:var(--green)">✅ Init</td>
+        <td style="color:var(--green)">✅ If configured</td>
+        <td>Pure API tests, pure DB tests — fastest</td>
+      </tr>
+      <tr>
+        <td><code>BaseHybridTest</code></td><td>HYBRID</td>
+        <td style="color:var(--green)">✅ Started</td>
+        <td style="color:var(--green)">✅ Init</td>
+        <td style="color:var(--green)">✅ If configured</td>
+        <td>API+UI, API+DB+UI, full-stack flows</td>
+      </tr>
+    </table>
+
+    <div class="callout callout-tip">
+      <div class="callout-icon">✅</div>
+      <div class="callout-body">
+        <strong>Pro Tip</strong> 
+        Use <code class="ic">BaseApiTest</code> for pure DB tests even though it says "API". 
+        It simply means "no browser" — you still get <code class="ic">pgDb</code>, <code class="ic">orDb</code>, 
+        and all API services available in the test.
+      </div>
+    </div>
+
+    <div class="h2">What BaseTest Gives You</div>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="code-lang">java</span>
+        <span class="code-title">Everything available in any test class</span>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+      <pre><span class="cm">// ── API Services (pre-wired, always available) ────────────────</span>
+authService.loginExpectSuccess(user, pass);
+userService.createUserExpectSuccess(request);
+orderService.createOrder(payload);
+
+<span class="cm">// ── DB Clients (null if not configured for env+country) ───────</span>
+pgDb  <span class="cm">// DbClient for Postgres</span>
+orDb  <span class="cm">// DbClient for Oracle (may be null)</span>
+
+<span class="cm">// ── DB Helper (pre-wired) ─────────────────────────────────────</span>
+dbHelper.cleanupTestUser(email);
+dbHelper.forceUserStatus(userId, <span class="st">"INACTIVE"</span>);
+
+<span class="cm">// ── Shortcut methods ──────────────────────────────────────────</span>
+ctx()       <span class="cm">// TestContext.get() — current thread's context</span>
+config()    <span class="cm">// ConfigManager.getInstance()</span>
+country()   <span class="cm">// active country string e.g. "IN"</span>
+baseUrl()   <span class="cm">// e.g. "https://qa.myapp.in"</span>
+apiUrl()    <span class="cm">// e.g. "https://qa-api.myapp.in"</span>
+dbAssert(pgDb)  <span class="cm">// starts a DbValidator chain</span></pre>
+    </div>
+  </div>
+
+  <!-- ─── LISTENERS ─────────────────────────────────────────────────────── -->
+  <div id="listeners" class="section">
+    <div class="section-eyebrow">Automation</div>
+    <h2 class="section-title">Listeners — What Runs Automatically</h2>
+    <p class="section-desc">Four TestNG listeners registered globally in testng.xml. You never call them directly — they run automatically around every test.</p>
+
+    <table class="ref-table">
+      <tr><th>Listener</th><th>When it fires</th><th>What it does</th></tr>
+      <tr>
+        <td><code>RetryTransformer</code></td>
+        <td>Before suite starts</td>
+        <td>Injects <code>RetryAnalyzer</code> into every <code>@Test</code> globally. Controls retries via <code>-Dretry.count=N</code></td>
+      </tr>
+      <tr>
+        <td><code>TestListener</code></td>
+        <td>Every test lifecycle event</td>
+        <td><strong>onStart</strong>: creates ExtentTest node. <strong>onFail</strong>: logs exception + captures screenshot. <strong>onFinish</strong>: flushes report</td>
+      </tr>
+      <tr>
+        <td><code>SoftAssertListener</code></td>
+        <td>After each passing test</td>
+        <td>Scans for un-flushed <code>SoftAssertions</code> fields. Logs warning if <code>assertAll()</code> was never called on a passing test</td>
+      </tr>
+      <tr>
+        <td><code>ExtentReportApiFilter</code></td>
+        <td>Every API call via RequestBuilder</td>
+        <td>Auto-embeds full request (method, URI, headers, body) and response (status, time, body) into the current test's ExtentReport node</td>
+      </tr>
+    </table>
+
+    <div class="callout callout-warn">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body">
+        <strong>RetryTransformer must be listed FIRST in testng.xml</strong>
+        It's an <code class="ic">IAnnotationTransformer</code> — TestNG processes it at test collection time, 
+        before any test runs. If placed after TestListener, retries won't be applied.
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── TEST DATA ─────────────────────────────────────────────────────── -->
+  <div id="data" class="section">
+    <div class="section-eyebrow">Data Driven</div>
+    <h2 class="section-title">Test Data — Excel &amp; JSON</h2>
+    <p class="section-desc">Test data comes from Excel (.xlsx) or JSON files. Both are filtered by active country automatically. Rows with runFlag=false are skipped.</p>
+
+    <div class="h2">Excel Format — TestData.xlsx</div>
+    <table class="ref-table">
+      <tr><th>testCaseId</th><th>country</th><th>description</th><th>runFlag</th><th>username</th><th>password</th><th>expectedTitle</th></tr>
+      <tr><td>TC_001</td><td>IN</td><td>Valid login India</td><td>TRUE</td><td>qa@myapp.in</td><td>Test@1234</td><td>Dashboard</td></tr>
+      <tr><td>TC_002</td><td>US</td><td>Valid login US</td><td>TRUE</td><td>qa@myapp.us</td><td>Test@1234</td><td>Dashboard</td></tr>
+      <tr><td>TC_003</td><td>UK</td><td>Disabled row</td><td><strong style="color:var(--red)">FALSE</strong></td><td>skip@myapp.co.uk</td><td>Test@1234</td><td></td></tr>
+    </table>
+
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="code-lang">java</span>
+        <span class="code-title">JSON format — login.json</span>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+      <pre>[
+  {
+    <span class="st">"testCaseId"</span>: <span class="st">"TC_JSON_001"</span>,
+    <span class="st">"country"</span>:    <span class="st">"IN"</span>,             <span class="cm">// filtered by -Dcountry</span>
+    <span class="st">"description"</span>: <span class="st">"Valid login India"</span>,
+    <span class="st">"runFlag"</span>:    <span class="kw">true</span>,             <span class="cm">// false = skip this row</span>
+    <span class="st">"username"</span>:   <span class="st">"qa_user@myapp.in"</span>,
+    <span class="st">"password"</span>:   <span class="st">"Test@1234"</span>,
+    <span class="st">"expectedTitle"</span>: <span class="st">"Dashboard"</span>,
+    <span class="st">"expectedUrl"</span>:   <span class="st">"/dashboard"</span>
+  }
+]</pre>
+    </div>
+
+    <div class="h2">Using DataProviderHelper</div>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="code-lang">java</span>
+        <span class="code-title">LoginDataProvider.java — thin DataProvider class</span>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+      <pre><span class="kw">public class</span> <span class="cl">LoginDataProvider</span> {
+
+  <span class="an">@DataProvider</span>(name = <span class="st">"loginDataExcel"</span>, parallel = <span class="kw">true</span>)
+  <span class="kw">public static</span> <span class="cl">Object</span>[][] <span class="fn">loginDataFromExcel</span>() {
+    <span class="cl">String</span> country = <span class="cl">ConfigManager</span>.getInstance().getCountry().name();
+    <span class="cl">List</span>&lt;<span class="cl">TestData</span>&gt; data = <span class="cl">ExcelDataReader</span>.readSheet(
+        EXCEL_DATA_FILE, LOGIN_SHEET, country);
+    <span class="kw">return</span> <span class="cl">DataProviderHelper</span>.toDataProvider(data);
+  }
+
+  <span class="an">@DataProvider</span>(name = <span class="st">"loginDataJson"</span>, parallel = <span class="kw">true</span>)
+  <span class="kw">public static</span> <span class="cl">Object</span>[][] <span class="fn">loginDataFromJson</span>() {
+    <span class="cl">String</span> country = <span class="cl">ConfigManager</span>.getInstance().getCountry().name();
+    <span class="cl">List</span>&lt;<span class="cl">TestData</span>&gt; data = <span class="cl">JsonDataReader</span>.readTestData(LOGIN_JSON_PATH, country);
+    <span class="kw">return</span> <span class="cl">DataProviderHelper</span>.toDataProvider(data);
+  }
+}</pre>
+    </div>
+  </div>
+
+  <!-- ─── GOLDEN RULES ───────────────────────────────────────────────────── -->
+  <div id="rules" class="section">
+    <div class="section-eyebrow">Best Practices</div>
+    <h2 class="section-title">Golden Rules</h2>
+    <p class="section-desc">These rules keep the framework clean and maintainable as the team grows. Bookmark this page.</p>
+
+    <ol class="steps">
+      <li>
+        <div class="step-num">①</div>
+        <div class="step-body">
+          <strong>No inline SQL in test classes.</strong>
+          All SQL goes in <code class="ic">DbQueries.java</code>. Oracle variants get a <code class="ic">_ORA</code> suffix. 
+          This is the single-point-of-change when your schema evolves.
+        </div>
+      </li>
+      <li>
+        <div class="step-num">②</div>
+        <div class="step-body">
+          <strong>No inline URL strings in test classes.</strong>
+          All API paths go in <code class="ic">ApiEndpoints.java</code>. 
+          All web URLs come from <code class="ic">config().getBaseUrl()</code>. Never hardcode a URL.
+        </div>
+      </li>
+      <li>
+        <div class="step-num">③</div>
+        <div class="step-body">
+          <strong>Page Objects never assert.</strong>
+          Pages return raw values (strings, booleans). 
+          Assertions with <code class="ic">assertThat()</code> or <code class="ic">SoftAssertions</code> belong in the test class only.
+        </div>
+      </li>
+      <li>
+        <div class="step-num">④</div>
+        <div class="step-body">
+          <strong>Always call <code class="ic">soft.assertAll()</code>.</strong>
+          AssertJ's SoftAssertions collect failures silently — they only throw when you call <code class="ic">assertAll()</code>. 
+          Forgetting it means your test passes even with assertion failures. The <code class="ic">SoftAssertListener</code> will warn you, but don't rely on it.
+        </div>
+      </li>
+      <li>
+        <div class="step-num">⑤</div>
+        <div class="step-body">
+          <strong>Guard Oracle with <code class="ic">if (orDb != null)</code>.</strong>
+          Not every env/country has Oracle. <code class="ic">orDb</code> is null when Oracle isn't configured. 
+          Always check before using it, or use <code class="ic">dbHelper.auditEventCount()</code> which handles null safely.
+        </div>
+      </li>
+      <li>
+        <div class="step-num">⑥</div>
+        <div class="step-body">
+          <strong>Clean up test data in <code class="ic">@AfterMethod</code>.</strong>
+          Tests that create DB records must delete them. Store the email/ID in an instance variable, 
+          call <code class="ic">dbHelper.cleanupTestUser(email)</code> in <code class="ic">@AfterMethod(alwaysRun=true)</code>. 
+          Never leave junk data in QA/UAT DBs.
+        </div>
+      </li>
+      <li>
+        <div class="step-num">⑦</div>
+        <div class="step-body">
+          <strong>Use <code class="ic">BaseApiTest</code> for DB-only tests.</strong>
+          There's no need to start a browser for pure DB validation. 
+          <code class="ic">BaseApiTest</code> skips driver initialisation, making DB-only tests much faster to run.
+        </div>
+      </li>
+      <li>
+        <div class="step-num">⑧</div>
+        <div class="step-body">
+          <strong>One <code class="ic">TestContext</code> per thread — don't share across tests.</strong>
+          <code class="ic">TestContext</code> is initialised and cleared by <code class="ic">BaseTest</code> per test method. 
+          Never store a reference to it at the class level or pass it to another thread.
+        </div>
+      </li>
+    </ol>
+
+    <div class="callout callout-tip">
+      <div class="callout-icon">🎯</div>
+      <div class="callout-body">
+        <strong>Adding a new feature to the framework?</strong>
+        New DB query → <code class="ic">DbQueries.java</code>. 
+        New API endpoint → <code class="ic">ApiEndpoints.java</code>. 
+        New constant → <code class="ic">FrameworkConstants.java</code>. 
+        New country → <code class="ic">Country.java</code> enum + <code class="ic">env-config.json</code>. 
+        New page → extend <code class="ic">BasePage</code>. 
+        New API service → inject <code class="ic">RequestBuilder</code> + <code class="ic">ApiClient</code>.
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ── Tab switching ──────────────────────────────────────────────────────────
+function switchTab(btn, containerId, paneId) {
+  const container = document.getElementById(containerId);
+  container.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  container.querySelector('#' + paneId).classList.add('active');
+  btn.closest('.tab-bar').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ── Nav active state ────────────────────────────────────────────────────────
+function setActive(el) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ── Copy code ───────────────────────────────────────────────────────────────
+function copyCode(btn) {
+  const pre = btn.closest('.code-wrap').querySelector('pre');
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// ── Update active nav on scroll ─────────────────────────────────────────────
+const sections = document.querySelectorAll('[id]');
+const navItems = document.querySelectorAll('.nav-item');
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navItems.forEach(n => n.classList.remove('active'));
+      const active = document.querySelector('.nav-item[href="#' + entry.target.id + '"]');
+      if (active) active.classList.add('active');
+    }
+  });
+}, { threshold: 0.25, rootMargin: '-52px 0px 0px 0px' });
+
+sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
