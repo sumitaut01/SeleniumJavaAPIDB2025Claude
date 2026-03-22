@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "UserResponse",
+  "description": "Schema for POST /api/v1/users and GET /api/v1/users/{userId} responses",
+  "type": "object",
+  "required": ["data"],
+  "properties": {
+    "data": {
+      "type": "object",
+      "required": ["userId", "email", "firstName", "lastName", "status", "country"],
+      "properties": {
+        "userId":    { "type": "string", "minLength": 1 },
+        "firstName": { "type": "string", "minLength": 1 },
+        "lastName":  { "type": "string", "minLength": 1 },
+        "email":     { "type": "string", "format": "email" },
+        "phone":     { "type": "string" },
+        "country":   { "type": "string", "enum": ["IN", "US", "UK", "AU"] },
+        "status":    { "type": "string", "enum": ["ACTIVE", "INACTIVE", "PENDING"] },
+        "role":      { "type": "string", "enum": ["CUSTOMER", "ADMIN", "AGENT"] },
+        "createdAt": { "type": "string" }
+      },
+      "additionalProperties": true
+    }
+  }
+}

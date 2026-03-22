@@ -1,0 +1,57 @@
+[
+  {
+    "testCaseId": "TC_LOGIN_JSON_001",
+    "country": "IN",
+    "description": "Valid login - India user",
+    "runFlag": true,
+    "username": "qa_user_in@myapp.in",
+    "password": "Test@1234",
+    "expectedTitle": "Dashboard",
+    "expectedUrl": "/dashboard",
+    "expectedMessage": "Welcome"
+  },
+  {
+    "testCaseId": "TC_LOGIN_JSON_002",
+    "country": "IN",
+    "description": "Admin login - India",
+    "runFlag": true,
+    "username": "admin_in@myapp.in",
+    "password": "Admin@1234",
+    "expectedTitle": "Admin Dashboard",
+    "expectedUrl": "/admin",
+    "expectedMessage": "Welcome Admin"
+  },
+  {
+    "testCaseId": "TC_LOGIN_JSON_003",
+    "country": "US",
+    "description": "Valid login - US user",
+    "runFlag": true,
+    "username": "qa_user_us@myapp.us",
+    "password": "Test@1234",
+    "expectedTitle": "Dashboard",
+    "expectedUrl": "/dashboard",
+    "expectedMessage": "Welcome"
+  },
+  {
+    "testCaseId": "TC_LOGIN_JSON_004",
+    "country": "UK",
+    "description": "Valid login - UK user",
+    "runFlag": true,
+    "username": "qa_user_uk@myapp.co.uk",
+    "password": "Test@1234",
+    "expectedTitle": "Dashboard",
+    "expectedUrl": "/dashboard",
+    "expectedMessage": "Welcome"
+  },
+  {
+    "testCaseId": "TC_LOGIN_JSON_005",
+    "country": "AU",
+    "description": "Valid login - AU user (disabled)",
+    "runFlag": false,
+    "username": "qa_user_au@myapp.com.au",
+    "password": "Test@1234",
+    "expectedTitle": "Dashboard",
+    "expectedUrl": "/dashboard",
+    "expectedMessage": "Welcome"
+  }
+]

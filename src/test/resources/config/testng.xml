@@ -1,0 +1,78 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+
+<!--
+═══════════════════════════════════════════════════════════════════════════════
+  Master Test Suite — Selenium + RestAssured Hybrid Framework
+═══════════════════════════════════════════════════════════════════════════════
+
+  Run all:     mvn test -Denv=qa -Dcountry=IN -Dexecution=local -Dbrowser=chrome
+  API only:    mvn test -Denv=qa -Dcountry=IN -Dgroups=api
+  Hybrid only: mvn test -Denv=qa -Dcountry=IN -Dgroups=hybrid
+  Smoke only:  mvn test -Denv=qa -Dcountry=US -Dgroups=smoke
+═══════════════════════════════════════════════════════════════════════════════
+-->
+<suite name="Master Automation Suite" parallel="tests" thread-count="3">
+
+    <listeners>
+        <!-- Transforms: injects RetryAnalyzer globally — must be first -->
+        <listener class-name="com.framework.listeners.RetryTransformer"/>
+        <!-- Reports: PASS/FAIL/SKIP + screenshot on failure + ExtentReport -->
+        <listener class-name="com.framework.listeners.TestListener"/>
+        <!-- Safety net: warns about un-flushed SoftAssertions -->
+        <listener class-name="com.framework.listeners.SoftAssertListener"/>
+    </listeners>
+
+    <!-- BLOCK 1: Pure API tests — no browser, fast, max parallelism -->
+    <test name="API Tests" parallel="methods" thread-count="3">
+        <groups>
+            <run>
+                <include name="api"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.framework.tests.api.UserApiTest"/>
+        </classes>
+    </test>
+
+    <!-- BLOCK 2: UI-only tests -->
+    <test name="UI Tests" parallel="methods" thread-count="2">
+        <groups>
+            <run>
+                <include name="smoke"/>
+                <include name="regression"/>
+                <include name="negative"/>
+                <exclude name="hybrid"/>
+                <exclude name="api"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.framework.tests.LoginTest"/>
+        </classes>
+    </test>
+
+    <!-- BLOCK 3: Hybrid tests — API + UI, lower thread count (browser overhead) -->
+    <test name="Hybrid Tests" parallel="methods" thread-count="2">
+        <groups>
+            <run>
+                <include name="hybrid"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.framework.tests.hybrid.CreateUserHybridTest"/>
+            <class name="com.framework.tests.hybrid.FullFlowTest"/>
+        </classes>
+    </test>
+
+    <!-- BLOCK 4: Pure DB tests — no browser, no API, fast -->
+    <test name="DB Tests" parallel="methods" thread-count="3">
+        <groups>
+            <run>
+                <include name="db"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.framework.tests.db.UserDbTest"/>
+        </classes>
+    </test>
+
+</suite>
